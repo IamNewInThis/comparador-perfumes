@@ -65,3 +65,9 @@ def test_missing_size_does_not_invent_price_per_ml():
     assert precio_por_ml(59990, None) is None
     parsed = parse_title("Acqua di Gio EDT")
     assert parsed.ml is None
+
+
+def test_refillable_packaging_keeps_the_same_fragrance():
+    result = match_title("Giorgio Armani Acqua Di Gio Men EDT 100ML Refillable", CATALOG)
+    assert result.status == "matched"
+    assert result.canonical == ACQUA

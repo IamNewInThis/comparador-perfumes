@@ -47,6 +47,8 @@ _NOISE = {
     "envase",
     "spray",
     "vaporizador",
+    "recargable",
+    "refillable",
     "perfume",
     "fragancia",
     "colonia",

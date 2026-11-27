@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">Comparador de perfumes</p>
+  <h1>Encuentra el mejor precio para tu perfume.</h1>
+  <p>Busca una fragancia y revisa sus ofertas por tienda, tamaño y precio por ml.</p>
+  <search>
+    <form action="/" method="get" class="search-form">
+      <label for="query">Nombre del perfume</label>
+      <div class="search-controls">
+        <input id="query" name="q" type="search" value="{{ q }}" placeholder="Ej.: Polo Blue o Acqua di Gio" autocorrect="off" autocapitalize="none" spellcheck="false">
+        <button type="submit">Buscar</button>
+      </div>
+    </form>
+  </search>
+</section>
+<section class="results" aria-labelledby="results-heading">
+  <div class="section-header">
+    <h2 id="results-heading">{% if q %}Resultados para “{{ q }}”{% else %}Perfumes disponibles{% endif %}</h2>
+    <span>{{ products|length }} fragancia{% if products|length != 1 %}s{% endif %}</span>
+  </div>
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+    <article class="product-card">
+      <a class="product-card-image" href="/p/{{ product.id }}" tabindex="-1" aria-hidden="true">
+        {% if product.imagen_url %}
+        <img src="{{ product.imagen_url|image_width(320) }}" srcset="{{ product.imagen_url|image_width(320) }} 320w, {{ product.imagen_url|image_width(640) }} 640w" sizes="(max-width: 650px) 100vw, 320px" width="320" height="320" loading="lazy" alt="">
+        {% else %}<span class="image-placeholder" aria-hidden="true">Sin foto</span>{% endif %}
+      </a>
+      <p class="eyebrow">{{ product.marca }}</p>
+      <h3><a href="/p/{{ product.id }}">{{ product.nombre_base }} <span>{{ product.concentracion|upper }}</span></a></h3>
+      <p>{{ product.ofertas|length }} oferta{% if product.ofertas|length != 1 %}s{% endif %} · {{ product.ofertas|map(attribute='retailer')|unique|list|length }} tienda{% if product.ofertas|map(attribute='retailer')|unique|list|length != 1 %}s{% endif %}</p>
+      <p class="card-sizes">{% for presentation in product.presentaciones %}<span>{% if presentation.ml %}{{ presentation.ml }} ml{% else %}Sin tamaño{% endif %}</span>{% endfor %}</p>
+      <div class="card-bottom">
+        <div><small>Desde</small><strong>{{ product.ofertas|map(attribute='precio_clp')|min|clp }}</strong></div>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>Sin ofertas disponibles</h3>
+    <p>{% if q %}Prueba con el nombre de la fragancia sin indicar el tamaño.{% else %}Todavía no hay ofertas vigentes. Ejecuta la ingesta inicial para cargar precios.{% endif %}</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

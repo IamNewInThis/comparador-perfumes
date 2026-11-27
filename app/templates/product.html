@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}{{ product.marca }} {{ product.nombre_base }} · Perfumes CL{% endblock %}
+{% block content %}
+<nav class="breadcrumbs" aria-label="Ruta"><a href="/">Perfumes</a><span aria-hidden="true">/</span><span>{{ product.nombre_base }}</span></nav>
+<section class="product-heading">
+  <div class="product-photo">
+    {% if product.imagen_url %}
+    <img src="{{ product.imagen_url|image_width(320) }}" srcset="{{ product.imagen_url|image_width(320) }} 320w, {{ product.imagen_url|image_width(640) }} 640w" sizes="(max-width: 650px) 70vw, 320px" width="320" height="320" fetchpriority="high" alt="Presentación de {{ product.marca }} {{ product.nombre_base }} {{ product.concentracion|upper }}">
+    {% else %}<span class="image-placeholder">Foto no disponible</span>{% endif %}
+  </div>
+  <div class="product-heading-copy">
+    <p class="eyebrow">{{ product.marca }}</p>
+    <h1>{{ product.nombre_base }} <span>{{ product.concentracion|upper }}</span></h1>
+    <p>{{ product.ofertas|length }} oferta{% if product.ofertas|length != 1 %}s{% endif %} en {{ product.presentaciones|length }} tamaño{% if product.presentaciones|length != 1 %}s{% endif %}. Compara tiendas dentro de cada presentación.</p>
+    {% if product.presentaciones|length > 1 %}
+    <nav class="size-nav" aria-label="Ir a un tamaño">
+      {% for presentation in product.presentaciones %}
+      <a href="#formato-{{ presentation.ml if presentation.ml else 'sin-ml' }}">{% if presentation.ml %}{{ presentation.ml }} ml{% else %}Sin tamaño{% endif %}</a>
+      {% endfor %}
+    </nav>
+    {% endif %}
+  </div>
+</section>
+<section class="offers" aria-labelledby="offers-heading">
+  <div class="section-header">
+    <h2 id="offers-heading">Opciones de compra</h2>
+    <search>
+      <form method="get" action="/p/{{ product.id }}" class="sort-form">
+        <label for="sort">Ordenar por</label>
+        <select name="sort" id="sort">
+          <option value="precio_ml" {% if sort == 'precio_ml' %}selected{% endif %}>Precio por ml</option>
+          <option value="precio" {% if sort == 'precio' %}selected{% endif %}>Precio de la botella</option>
+        </select>
+        <button type="submit">Ordenar</button>
+      </form>
+    </search>
+  </div>
+  {% if product.ofertas %}
+    {% for presentation in product.presentaciones %}
+    <section class="size-section" id="formato-{{ presentation.ml if presentation.ml else 'sin-ml' }}" aria-labelledby="title-{{ presentation.ml if presentation.ml else 'sin-ml' }}">
+      <div class="size-section-title">
+        <h3 id="title-{{ presentation.ml if presentation.ml else 'sin-ml' }}">{% if presentation.ml %}{{ presentation.ml }} ml{% else %}Tamaño no indicado{% endif %}</h3>
+        <span>{{ presentation.ofertas|length }} oferta{% if presentation.ofertas|length != 1 %}s{% endif %} · {{ presentation.ofertas|map(attribute='retailer')|unique|list|length }} tienda{% if presentation.ofertas|map(attribute='retailer')|unique|list|length != 1 %}s{% endif %}</span>
+      </div>
+      <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="title-{{ presentation.ml if presentation.ml else 'sin-ml' }}">
+        <table>
+          <thead><tr><th scope="col">Tienda</th><th scope="col">Precio</th><th scope="col">Precio / ml</th><th scope="col">Enlace</th></tr></thead>
+          <tbody>
+          {% for offer in presentation.ofertas %}
+            <tr>
+              <th scope="row"><div class="retailer-cell">{% if offer.imagen_url %}<img src="{{ offer.imagen_url|image_width(96) }}" width="64" height="64" loading="lazy" alt="">{% endif %}<div><strong>{{ offer.retailer }}</strong><small>{{ offer.titulo_raw }}</small></div></div></th>
+              <td class="price">{{ offer.precio_clp|clp }}</td>
+              <td>{{ offer.precio_por_ml|clp }}{% if offer.precio_por_ml %} / ml{% endif %}</td>
+              <td><a class="store-link" href="{{ offer.url }}" target="_blank" rel="noopener noreferrer">Ir a tienda <span aria-hidden="true">↗</span></a></td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <ul class="mobile-offers" aria-label="Ofertas de {{ presentation.ml if presentation.ml else 'tamaño no indicado' }} ml">
+        {% for offer in presentation.ofertas %}
+        <li class="offer-card">
+          <div class="offer-card-top">{% if offer.imagen_url %}<img src="{{ offer.imagen_url|image_width(128) }}" width="72" height="72" loading="lazy" alt="">{% endif %}<div><strong>{{ offer.retailer }}</strong><p>{{ offer.titulo_raw }}</p></div></div>
+          <div class="offer-card-price"><strong>{{ offer.precio_clp|clp }}</strong><span>{{ offer.precio_por_ml|clp }}{% if offer.precio_por_ml %} / ml{% endif %}</span></div>
+          <a class="store-link" href="{{ offer.url }}" target="_blank" rel="noopener noreferrer">Ir a tienda <span aria-hidden="true">↗</span></a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+    <p class="freshness">Ofertas disponibles observadas en las últimas 48 horas.</p>
+  {% else %}
+    <div class="empty-state"><p>Este perfume no tiene ofertas disponibles ahora.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

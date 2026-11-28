@@ -42,6 +42,11 @@ button:hover { background: #0b514b; }
 .card-bottom small { color: #687584; }
 .card-bottom strong { font-size: 1.35rem; }
 .card-arrow { color: #126a63; font-size: 1.5rem; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: .6rem; flex-wrap: wrap; margin-block-start: 2rem; }
+.page-numbers { display: flex; gap: .4rem; flex-wrap: wrap; }
+.page-link { display: inline-flex; align-items: center; justify-content: center; min-inline-size: 44px; min-block-size: 44px; padding: .5rem .9rem; border: 1px solid #d4dcdf; border-radius: .6rem; background: #fff; color: #182331; font-weight: 650; text-decoration: none; }
+.page-link:hover { border-color: #126a63; color: #126a63; }
+.page-link.is-current { border-color: #126a63; background: #126a63; color: #fff; }
 .empty-state { padding: 2rem; border: 1px dashed #aab4bc; border-radius: .8rem; background: #fff; color: #566572; }
 .empty-state h3 { color: #182331; }
 .breadcrumbs { display: flex; gap: .65rem; color: #66737e; padding-block: 1.5rem 2rem; }

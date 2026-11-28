@@ -11,7 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from psycopg import OperationalError
 
-from app.catalog import get_perfume, search_perfumes
+from app.catalog import get_perfume, search_perfumes, search_perfumes_page
 from app.db import connection
 
 ROOT = Path(__file__).resolve().parent
@@ -61,9 +61,19 @@ def perfume(perfume_id: int, sort: str = Query(default="precio_ml", pattern="^(p
 
 
 @app.get("/", response_class=HTMLResponse)
-def home(request: Request, q: str = Query(default="", max_length=120)):
-    products = search_perfumes(q)
-    return templates.TemplateResponse(request, "home.html", {"q": q, "products": products})
+def home(request: Request, q: str = Query(default="", max_length=120), page: int = Query(default=1, ge=1)):
+    result = search_perfumes_page(q, page=page, per_page=24)
+    return templates.TemplateResponse(
+        request,
+        "home.html",
+        {
+            "q": q,
+            "products": result["items"],
+            "total": result["total"],
+            "page": result["page"],
+            "total_pages": result["total_pages"],
+        },
+    )
 
 
 @app.get("/p/{perfume_id}", response_class=HTMLResponse)

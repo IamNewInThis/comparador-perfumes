@@ -12,7 +12,10 @@ from psycopg.types.json import Jsonb
 
 from app.db import connection
 from app.matching import Canonical, match_title, precio_por_ml
+from app.retailers.chile import CHILE_STORES
 from app.retailers.shopify import STORES, RawOffer
+
+ALL_STORES = STORES + CHILE_STORES
 
 LOG = logging.getLogger(__name__)
 
@@ -86,7 +89,7 @@ def run() -> dict[str, int]:
     queries = list(dict.fromkeys(c.nombre_base for _, c in entries))
     user_agent = os.getenv("SCRAPER_USER_AGENT", "ComparadorPerfumes/0.1 (+contacto local)")
     with httpx.Client(timeout=15, follow_redirects=True, headers={"User-Agent": user_agent}) as client:
-        for store in STORES:
+        for store in ALL_STORES:
             for query in queries:
                 try:
                     offers = store.search(query, client)

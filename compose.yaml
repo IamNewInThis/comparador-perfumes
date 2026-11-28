@@ -4,7 +4,8 @@ services:
     environment:
       POSTGRES_DB: perfumes
       POSTGRES_USER: perfumes
-      POSTGRES_PASSWORD: local-dev-only
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-dev-only}
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/001_schema.sql:/docker-entrypoint-initdb.d/001_schema.sql:ro
@@ -17,17 +18,18 @@ services:
   web:
     build: .
     environment:
-      DATABASE_URL: postgresql://perfumes:local-dev-only@db:5432/perfumes
+      DATABASE_URL: postgresql://perfumes:${POSTGRES_PASSWORD:-local-dev-only}@db:5432/perfumes
     ports:
       - "127.0.0.1:8000:8000"
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
   ingest:
     build: .
     command: ["python", "-m", "app.ingest"]
     environment:
-      DATABASE_URL: postgresql://perfumes:local-dev-only@db:5432/perfumes
+      DATABASE_URL: postgresql://perfumes:${POSTGRES_PASSWORD:-local-dev-only}@db:5432/perfumes
     depends_on:
       db:
         condition: service_healthy
@@ -36,7 +38,7 @@ services:
     build: .
     command: ["python", "-m", "app.scheduler"]
     environment:
-      DATABASE_URL: postgresql://perfumes:local-dev-only@db:5432/perfumes
+      DATABASE_URL: postgresql://perfumes:${POSTGRES_PASSWORD:-local-dev-only}@db:5432/perfumes
     depends_on:
       db:
         condition: service_healthy

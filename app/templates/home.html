@@ -17,7 +17,7 @@
 <section class="results" aria-labelledby="results-heading">
   <div class="section-header">
     <h2 id="results-heading">{% if q %}Resultados para “{{ q }}”{% else %}Perfumes disponibles{% endif %}</h2>
-    <span>{{ products|length }} fragancia{% if products|length != 1 %}s{% endif %}</span>
+    <span>{{ total }} fragancia{% if total != 1 %}s{% endif %}{% if total_pages > 1 %} · Página {{ page }} de {{ total_pages }}{% endif %}</span>
   </div>
   {% if products %}
   <div class="product-grid">
@@ -39,6 +39,25 @@
     </article>
     {% endfor %}
   </div>
+  {% if total_pages > 1 %}
+  <nav class="pagination" aria-label="Paginación">
+    {% if page > 1 %}
+    <a class="page-link" href="/?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page - 1 }}">← Anterior</a>
+    {% endif %}
+    <div class="page-numbers">
+      {% for num in range(1, total_pages + 1) %}
+      {% if num == page %}
+      <span class="page-link is-current" aria-current="page">{{ num }}</span>
+      {% else %}
+      <a class="page-link" href="/?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% if page < total_pages %}
+    <a class="page-link" href="/?{% if q %}q={{ q|urlencode }}&{% endif %}page={{ page + 1 }}">Siguiente →</a>
+    {% endif %}
+  </nav>
+  {% endif %}
   {% else %}
   <div class="empty-state">
     <h3>Sin ofertas disponibles</h3>
